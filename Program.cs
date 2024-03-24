@@ -40,7 +40,7 @@ public class Program
             var filePath = $"Holders_{assetId}.txt";
             filePath = Path.Combine(path, filePath);
 
-            var holdersToFile = holders.Select(h => h.user).ToList();
+            var holdersToFile = holders.Select(h => h.User).ToList();
 
             File.WriteAllLines(filePath, holdersToFile);
             Console.WriteLine($"Holders saved to {filePath}");
@@ -49,7 +49,7 @@ public class Program
         {
             Console.WriteLine(holders.Count + " holders found");
             Console.WriteLine("Holders:");
-            Console.WriteLine(string.Join(", ", holders.Select(h => h.user)));
+            Console.WriteLine(string.Join(", ", holders.Select(h => h.User)));
         }
 
 

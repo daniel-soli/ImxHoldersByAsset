@@ -29,19 +29,19 @@ public class ImxApiService : IImxApiService
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();
             AssetsResponse assets = JsonConvert.DeserializeObject<AssetsResponse>(json)!;
-            var cursor = assets.cursor;
-            var remaining = assets.remaining;
+            var cursor = assets.Cursor;
+            var remaining = assets.Remaining;
             var users = new List<Result>();
 
             if (distinctUsers)
             {
-                var temp = assets?.result.Distinct(new MyObjectComparer()).ToList();
+                var temp = assets?.Result.Distinct(new MyObjectComparer()).ToList();
                 users.AddRange(temp);
                 //return string.Join(", ", users);
             }
             else
             {
-                users.AddRange(assets.result);
+                users.AddRange(assets.Result);
             }
 
             while (!string.IsNullOrEmpty(cursor) && remaining == 1)
@@ -52,18 +52,18 @@ public class ImxApiService : IImxApiService
                 var jsonTemp = await responseTemp.Content.ReadAsStringAsync();
                 var assetsTemp = JsonConvert.DeserializeObject<AssetsResponse>(jsonTemp)!;
 
-                cursor = assetsTemp.cursor;
-                remaining = assetsTemp.remaining;
+                cursor = assetsTemp.Cursor;
+                remaining = assetsTemp.Remaining;
 
                 if (distinctUsers)
                 {
-                    var temp = assets?.result.Distinct(new MyObjectComparer()).ToList();
+                    var temp = assets?.Result.Distinct(new MyObjectComparer()).ToList();
                     users.AddRange(temp);
                     //return string.Join(", ", users);
                 }
                 else
                 {
-                    users.AddRange(assets.result);
+                    users.AddRange(assets.Result);
                 }
             }
 
