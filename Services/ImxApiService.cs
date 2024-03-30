@@ -1,15 +1,11 @@
 ﻿using ImxHoldersByAsset.Models;
 using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.Net.Http.Json;
-using System.Text.Json.Serialization;
-using System.Threading;
 
 namespace ImxHoldersByAsset.Services;
 
 public interface IImxApiService
 {
-    Task<List<Result>> GetHoldersByCollection(string assetId, bool distinctUsers = true);
+    Task<List<Result>> GetHoldersByCollection(string assetId);
 }
 
 public class ImxApiService : IImxApiService
@@ -21,7 +17,7 @@ public class ImxApiService : IImxApiService
         _client = client;
     }
 
-    public async Task<List<Result>> GetHoldersByCollection(string assetId, bool distinctUsers = true)
+    public async Task<List<Result>> GetHoldersByCollection(string assetId)
     {
         try
         {
@@ -29,20 +25,12 @@ public class ImxApiService : IImxApiService
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();
             AssetsResponse assets = JsonConvert.DeserializeObject<AssetsResponse>(json)!;
-            var cursor = assets.Cursor;
-            var remaining = assets.Remaining;
+            var cursor = assets.cursor;
+            var remaining = assets.remaining;
             var users = new List<Result>();
 
-            if (distinctUsers)
-            {
-                var temp = assets?.Result.Distinct(new MyObjectComparer()).ToList();
-                users.AddRange(temp);
-                //return string.Join(", ", users);
-            }
-            else
-            {
-                users.AddRange(assets.Result);
-            }
+            
+            users.AddRange(assets.result);
 
             while (!string.IsNullOrEmpty(cursor) && remaining == 1)
             {
@@ -52,19 +40,10 @@ public class ImxApiService : IImxApiService
                 var jsonTemp = await responseTemp.Content.ReadAsStringAsync();
                 var assetsTemp = JsonConvert.DeserializeObject<AssetsResponse>(jsonTemp)!;
 
-                cursor = assetsTemp.Cursor;
-                remaining = assetsTemp.Remaining;
+                cursor = assetsTemp.cursor;
+                remaining = assetsTemp.remaining;
 
-                if (distinctUsers)
-                {
-                    var temp = assets?.Result.Distinct(new MyObjectComparer()).ToList();
-                    users.AddRange(temp);
-                    //return string.Join(", ", users);
-                }
-                else
-                {
-                    users.AddRange(assets.Result);
-                }
+                users.AddRange(assetsTemp.result);
             }
 
             return users;

@@ -6,35 +6,24 @@ public class AssetsResponse
 {
     public AssetsResponse(List<Result> results, string cursor, int remaining)
     {
-        Result = results;
-        Cursor = cursor;
-        Remaining = remaining;
+        result = results;
+        this.cursor = cursor;
+        this.remaining = remaining;
     }
-    public List<Result> Result { get; set; }
-    public string Cursor { get; set; }
-    public int Remaining { get; set; }
+    public List<Result> result { get; set; } 
+    public string cursor { get; set; }
+    public int remaining { get; set; }
 }
 
-public class Result
+public class Result(string token_address, string token_id, string id, string user, string status, string uri, string name)
 {
-    public Result(string token_address, string token_id, string id, string user, string status, string uri, string name)
-    {
-        Token_address = token_address;
-        Token_id = token_id;
-        Id = id;
-        User = user;
-        Status = status;
-        Uri = uri;
-        Name = name;
-        // Parameterless constructor
-    }
-    public string Token_address { get; set; }
-    public string Token_id { get; set; }
-    public string Id { get; set; }
-    public string User { get; set; }
-    public string Status { get; set; }
-    public string Uri { get; set; }
-    public string Name { get; set; }
+    public string token_address { get; set; } = token_address;
+    public string token_id { get; set; } = token_id;
+    public string id { get; set; } = id;
+    public string user { get; set; } = user;
+    public string status { get; set; } = status;
+    public string uri { get; set; } = uri;
+    public string name { get; set; } = name;
 }
 
 public class Collection
@@ -47,17 +36,32 @@ public class Collection
     public string icon_url { get; set; }
 }
 
-class MyObjectComparer : IEqualityComparer<Result>
+class CompareUser : IEqualityComparer<Result>
 {
     public bool Equals(Result x, Result y)
     {
         // Check if the PropertyToCompare values are equal
-        return x.User == y.User;
+        return x.user == y.user;
     }
 
     public int GetHashCode(Result obj)
     {
         // Return the hash code of the PropertyToCompare value
-        return obj.User.GetHashCode();
+        return obj.user.GetHashCode();
+    }
+}
+
+class CompareAsset : IEqualityComparer<Result>
+{
+    public bool Equals(Result x, Result y)
+    {
+        // Check if the PropertyToCompare values are equal
+        return x.token_id == y.token_id;
+    }
+
+    public int GetHashCode(Result obj)
+    {
+        // Return the hash code of the PropertyToCompare value
+        return obj.token_id.GetHashCode();
     }
 }

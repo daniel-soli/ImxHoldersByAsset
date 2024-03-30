@@ -1,8 +1,8 @@
-﻿using ImxHoldersByAsset.Services;
+﻿using ImxHoldersByAsset.Models;
+using ImxHoldersByAsset.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ImxHoldersByAsset;
 
@@ -29,18 +29,33 @@ public class Program
 
         Console.WriteLine("Fetching holders...");
 
-        var holders = await imxApiService.GetHoldersByCollection(assetId, distinctUsers);
+        var holders = await imxApiService.GetHoldersByCollection(assetId);
+
+        //holders = holders.Distinct(new CompareAsset()).ToList();
+
+        holders = holders.OrderBy(h => h.token_id).ToList();
+
+        if (distinctUsers)
+        {
+            holders = holders.Distinct(new CompareUser()).ToList();
+        } 
 
         Console.WriteLine("Do you want to save the holders to a file? (Y/N)");
         var saveToFile = Console.ReadLine().ToLower() == "y";
 
         if (saveToFile)
         {
-            var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? @"c:\temp\kira";
+
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
             var filePath = $"Holders_{assetId}.txt";
             filePath = Path.Combine(path, filePath);
 
-            var holdersToFile = holders.Select(h => h.User).ToList();
+            var holdersToFile = holders.Select(h => h.user).ToList();
 
             File.WriteAllLines(filePath, holdersToFile);
             Console.WriteLine($"Holders saved to {filePath}");
@@ -49,7 +64,7 @@ public class Program
         {
             Console.WriteLine(holders.Count + " holders found");
             Console.WriteLine("Holders:");
-            Console.WriteLine(string.Join(", ", holders.Select(h => h.User)));
+            Console.WriteLine(string.Join(", ", holders.Select(h => h.user)));
         }
 
 
